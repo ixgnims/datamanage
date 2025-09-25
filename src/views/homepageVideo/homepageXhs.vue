@@ -1,5 +1,10 @@
 <template>
   <div>
+    <el-alert
+        title="因资源紧张，小红书官方正在维修获取笔记的API接口，当前调用受限中，若无法加载切勿频繁刷新，可稍后重试"
+        type="warning"
+        show-icon>
+    </el-alert>
     <el-card class="content-card">
       <el-row class="content-header">
         <div class="content-title">小红书主号</div>
@@ -39,15 +44,30 @@
           <span class="text-label" v-if="recordMain !== 'all'">条</span>
         </div>
       </el-row>
-      <el-row style="flex-direction: column; margin-bottom: 5px; width: 100%;">
-        <div style="float: left; display: block; white-space: nowrap">
-          <el-radio v-model="noteContentType" label="all">全部</el-radio>
-          <el-radio v-model="noteContentType" label="2">视频</el-radio>
-          <el-radio v-model="noteContentType" label="1">图文</el-radio>
-        </div>
-        <div style="float: right; display: block;white-space: nowrap">
+      <el-row style="margin-top: 5px">
+        <el-col span="10">
+          <span class="radio-group-title">笔记类型：</span>
+          <el-radio-group v-model="noteContentType" size="mini" @change="getXhsMainNote">
+            <el-radio v-for="option in noteContentTypeOptions"
+                      :key="option.value"
+                      :label="option.value">
+              {{option.label}}
+            </el-radio>
+          </el-radio-group>
+        </el-col>
+        <el-col span="13">
+          <span class="radio-group-title">作者：</span>
+          <el-radio-group v-model="writerMain"  size="mini" @change="getXhsMainNote">
+            <el-radio v-for="option in writerOptionsMain"
+                      :key="option.value"
+                      :label="option.value">
+              {{option.label}}
+            </el-radio>
+          </el-radio-group>
+        </el-col>
+        <el-col span="1">
           <el-button icon="el-icon-download" size="mini" class="square-button" @click="exportXhsMain"></el-button>
-        </div>
+        </el-col>
       </el-row>
       <el-row style="margin-top: 5px">
         <div>
@@ -129,6 +149,16 @@ export default {
       recordMain: 20,
       numberSelectMain: 20,
       noteContentType: "2",
+      noteContentTypeOptions: [
+        {label: "全部", value: "all"},
+        {label: "视频", value: "2"},
+        {label: "图文", value: "1"}
+      ],
+      writerMain: "all",
+      writerOptionsMain: [
+        {label: "全部", value: "all"},
+        {label: "哲涛", value: "哲涛"}
+      ],
       xhsMainGridOptions,
       xhsMainData: []
     }
@@ -263,6 +293,12 @@ export default {
   margin-right: 20px;
   color: #606266;
   font-size: 16px;
+  font-weight: 550;
+}
+
+.radio-group-title {
+  color: #606266;
+  font-size: 14px;
   font-weight: 550;
 }
 

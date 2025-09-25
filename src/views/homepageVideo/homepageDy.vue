@@ -40,6 +40,15 @@
           <span class="text-label" v-if="recordMain !== 'all'">条</span>
         </div>
       </el-row>
+      <el-row>
+        <el-radio-group v-model="writerMain"  size="mini" @change="getDyMainVideo">
+          <el-radio v-for="option in writerOptionsMain"
+                           :key="option.value"
+                           :label="option.value">
+            {{option.label}}
+          </el-radio>
+        </el-radio-group>
+      </el-row>
       <el-row style="margin-top: 5px">
         <div>
           <vxe-grid ref="dyMainGrid" v-bind="dyMainGridOptions">
@@ -117,6 +126,15 @@
           </el-popover>
           <span class="text-label" v-if="recordSeven !== 'all'">条</span>
         </div>
+      </el-row>
+      <el-row>
+        <el-radio-group v-model="writerSeven"  size="mini" @change="getDySevenVideo">
+          <el-radio v-for="option in writerOptionsSeven"
+                    :key="option.value"
+                    :label="option.value">
+            {{option.label}}
+          </el-radio>
+        </el-radio-group>
       </el-row>
       <el-row style="margin-top: 5px">
         <div>
@@ -255,6 +273,11 @@ export default {
       selectDateMain: [],
       recordMain: 20,
       numberSelectMain: 20,
+      writerMain: "all",
+      writerOptionsMain: [
+        {label: "全部", value: "all"},
+        {label: "哲涛", value: "哲涛"}
+      ],
       dyMainGridOptions,
       dyMainData: [],
       // 99直播7号
@@ -264,6 +287,11 @@ export default {
       selectDateSeven: [],
       recordSeven: 20,
       numberSelectSeven: 20,
+      writerSeven: "all",
+      writerOptionsSeven: [
+        {label: "全部", value: "all"},
+        {label: "哲涛", value: "哲涛"}
+      ],
       dySevenGridOptions,
       dySevenData: [],
     }
@@ -311,7 +339,8 @@ export default {
         start_date: start_date,
         end_date: end_date,
         latest_n: this.recordMain,
-        aweme_nickname_list: "主号"
+        aweme_nickname_list: "主号",
+        writer: this.writerMain,
       }
       try {
         const res = await this.getDyHomepageUniversal(params)
@@ -344,7 +373,8 @@ export default {
         start_date: start_date,
         end_date: end_date,
         latest_n: this.recordSeven,
-        aweme_nickname_list: "99直播7号"
+        aweme_nickname_list: "99直播7号",
+        writer: this.writerSeven,
       }
       try {
         const res = await this.getDyHomepageUniversal(params)

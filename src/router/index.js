@@ -271,6 +271,34 @@ const routes = [
       }
     ]
   },
+  // 百度看板
+  {
+    path: '/baidu/dashboard',
+    name: 'baiduMain',
+    redirect: '/baidu/dashboard/live',
+    component: () => import('../views/baiduDashboard/baiduMain.vue'),
+    meta: { title: '百度看板' },
+    children: [
+      {
+        path: '/baidu/dashboard/live',
+        name: 'baiduLive',
+        meta: { title: '百度直播看板' },
+        component: () => import('../views/baiduDashboard/baiduLive.vue'),
+      },
+      {
+        path: '/baidu/dashboard/video',
+        name: 'baiduVideo',
+        meta: {title: '百度视频看板'},
+        component: () => import('../views/baiduDashboard/baiduVideo.vue'),
+      },
+      {
+        path: '/baidu/dashboard/advertiser',
+        name: 'baiduAdvertiser',
+        meta: {title: '百度账户看板'},
+        component: () => import('../views/baiduDashboard/baiduAdvertiser.vue'),
+      },
+    ]
+  },
   // 主页视频看板
   {
     path: '/homepageVideo',
