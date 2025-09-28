@@ -86,7 +86,7 @@ export default {
       showFooter: true,
       rowConfig: {
         isHover: true,
-        keyField: 'note_id',
+        keyField: 'row_key',
       },
       columnConfig: {
         resizable: true,
@@ -142,9 +142,9 @@ export default {
         {field: "note_id", title: "笔记id", width: 100, showOverFlow: true, visible: false},
         {field: "note_jump_url", title: "笔记链接", width: 100, showOverFlow: true, visible: false},
         {field: "fee", title: "消耗", width: 100, showHeaderOverflow: true, formatter: formatFloat, sortable: true},
-        {field: "deal_order_gmv_7d", title: "7日GMV", width: 100, showHeaderOverflow: true, formatter: formatFloat, sortable: true},
-        {field: "deal_order_num_7d", title: "7日单量", width: 100, showHeaderOverflow: true, formatter: formatInteger, sortable: true},
-        {field: "deal_order_roi_7d", title: "7日ROI", width: 100, showHeaderOverflow: true, formatter: formatFloat, sortable: true},
+        {field: "deal_order_gmv_7d", title: "GMV", width: 100, showHeaderOverflow: true, formatter: formatFloat, sortable: true},
+        {field: "deal_order_num_7d", title: "单量", width: 100, showHeaderOverflow: true, formatter: formatInteger, sortable: true},
+        {field: "deal_order_roi_7d", title: "ROI", width: 100, showHeaderOverflow: true, formatter: formatFloat, sortable: true},
         {field: "ctr", title: "点击率", width: 100, showHeaderOverflow: true, formatter: formatRate, sortable: true},
         {field: "cvr", title: "转化率", width: 100, showHeaderOverflow: true, formatter: formatRate, sortable: true},
         {field: "cpm", title: "CPM", width: 100, showHeaderOverflow: true, formatter: formatFloat, sortable: true},
@@ -182,7 +182,7 @@ export default {
       }
     },
     getXhsWindNoteUniversal(params) {
-      return axios.get(`http://dashboard1.xiyao888.cn/xhs/note_report/wind/api/get/`, { params })
+      return axios.get(`http://127.0.0.1:8000/xhs/note_report/wind/api/get/`, { params })
     },
     async getXhsWindNoteTotal() {
       this.noteTotalGridOptions.loading = true
@@ -216,9 +216,9 @@ export default {
       try {
         const res = await this.getXhsWindNoteUniversal(params)
         if (res.data.code !== 1) return
-        const { total_data, note_data } = res.data
-        const dimKey = this.checkedDimensionsIds.join()
         let advFilter = []
+        this.noteTotalData = res.data['note_data']
+        /*
         switch(dimKey) {
           case 'note':
             this.noteTotalData = Object.values(total_data.note_aggregate)
@@ -236,6 +236,7 @@ export default {
             )
             advFilter = Object.keys(note_data).map(adv => ({ label: adv, value: adv }))
         }
+         */
         if (advFilter.length > 0) {
           await this.$refs.noteTotalGrid.setFilter('advertiser_nickname', advFilter)
         }
@@ -285,7 +286,8 @@ export default {
       if ($grid) {
         $grid.exportData({
           filename: "小红书乘风笔记数据"+start_date+"~"+end_date,
-          type: 'csv'
+          type: 'csv',
+          isExportAll: false
         })
       }
     },

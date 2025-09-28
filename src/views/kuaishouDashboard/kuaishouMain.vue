@@ -1,11 +1,11 @@
-<script setup>
+<template>
+  <div>开发中</div>
+</template>
+
+<script>
 
 </script>
 
-<template>
-  $END$
-</template>
-
-<style scoped>
+<style>
 
 </style>

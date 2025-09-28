@@ -227,6 +227,11 @@ const routes = [
     component: () => import('../views/advideo/qianchuan_videoInfoUpdate.vue'),
     meta: { title: '视频管理'}
   },
+  // 管理员总看板
+  {
+    path: '/heshu_admin/dashboard',
+    name: 'adminMain',
+  },
   // 计划与视频
   {
     path: '/AdVideo',
@@ -298,6 +303,13 @@ const routes = [
         component: () => import('../views/baiduDashboard/baiduAdvertiser.vue'),
       },
     ]
+  },
+  // 快手视频看板
+  {
+    path: '/kuaishou/dashboard',
+    name: 'kuaishouMain',
+    meta: {title: '快手看板'},
+    component: () => import('../views/kuaishouDashboard/kuaishouMain.vue'),
   },
   // 主页视频看板
   {
