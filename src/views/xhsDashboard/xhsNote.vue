@@ -182,7 +182,7 @@ export default {
       }
     },
     getXhsWindNoteUniversal(params) {
-      return axios.get(`http://127.0.0.1:8000/xhs/note_report/wind/api/get/`, { params })
+      return axios.get(`http://dashboard1.xiyao888.cn/xhs/note_report/wind/api/get/`, { params })
     },
     async getXhsWindNoteTotal() {
       this.noteTotalGridOptions.loading = true
