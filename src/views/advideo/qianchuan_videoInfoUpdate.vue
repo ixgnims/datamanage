@@ -244,12 +244,13 @@ export default {
         "LX": "李鑫",
         "GG": "嘎嘎",
         "XML": "熊美玲",
+        "SY": "张思远",
         "wyx": "王雨萱",
         "YX": "王雨萱",
         "QJ": "巫奇津",
         "JJ": "李嘉靖",
         "KY": "胡可屹",
-        "ZH": "吴仔豪"
+        "ZH": "吴仔豪",
       }
       if (item.editor_code.length > 0) {
         item.editor = editor_map[item.editor_code] || ''

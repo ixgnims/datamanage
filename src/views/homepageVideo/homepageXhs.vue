@@ -200,7 +200,8 @@ export default {
         start_date: start_date,
         end_date: end_date,
         latest_n: this.recordMain,
-        note_content_type: this.noteContentType
+        note_content_type: this.noteContentType,
+        writer: this.writerMain
       }
       try {
         const res = await this.getXhsNoteUniversal(params)
