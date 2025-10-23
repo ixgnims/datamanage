@@ -45,6 +45,7 @@ export default {
       {id: 'total_play_cnt', label: '播放数'},
       {id: 'total_play_over_cnt', label: '完播数'},
       {id: 'total_play_over_rate', label: '完播率'},
+      {id: 'total_play_3s_rate', label: '3s播放率'},
       {id: 'total_follow_rate', label: '关注率'},
       {id: 'total_estimated_profit', label: '预估利润'},
       {id: 'video_level', label: '视频级别'}
@@ -87,14 +88,15 @@ export default {
       {id: 'uni_ROI', label: 'ROI(全域推广)'},
       {id: 'uni_play_cnt', label: '播放数(全域推广)'},
       {id: 'uni_play_over_cnt', label: '完播数(全域推广)'},
+      {id: 'uni_play_3s_rate', label: '3秒播放率(全域推广)'},
     ]
     return {
       metric_form: {
         checkedBasicMetricIds: ['total_show_cnt', 'total_click_cnt', 'total_convert_cnt', 'total_cost', 'total_click_rate',
           'total_click_convert_rate', 'total_show_convert_rate', 'total_ROI', 'total_cpc', 'total_convert_cost',
-          'total_cpm', 'total_estimated_profit', 'total_play_over_rate', 'total_follow_rate', 'video_level'],
+          'total_cpm', 'total_estimated_profit', 'total_play_over_rate', 'total_play_3s_rate', 'total_follow_rate', 'video_level'],
         checkedStandardMetricIds: ['standard_live_enter_rate', 'standard_click_slidecart_rate', 'standard_click_product_rate',
-          'standard_slidecart_click_convert_rate', 'standard_play_3s_rate', 'standard_play_50_rate'],
+          'standard_slidecart_click_convert_rate', 'standard_play_50_rate'],
         checkedUniMetricIds: []
       },
       // 向父组件传参 qc_video_table
@@ -112,13 +114,13 @@ export default {
         {id: 'total_cpm', label: '平均千次展示费用'},
         {id: 'total_estimated_profit', label: '预估利润'},
         {id: 'total_play_over_rate', label: '完播率'},
+        {id: 'total_play_3s_rate', label: '3s播放率'},
         {id: 'total_follow_rate', label: '直播间关注率'},
         {id: 'video_level', label: '视频级别'},
         {id: 'standard_live_enter_rate', label: '直播间进入率(标准推广)'},
         {id: 'standard_click_slidecart_rate', label: '购物车点击率(标准推广)'},
         {id: 'standard_click_product_rate', label: '商品点击率(标准推广)'},
         {id: 'standard_slidecart_click_convert_rate', label: '查看购物车转化率(标准推广)'},
-        {id: 'standard_play_3s_rate', label: '3s播放率(标准推广)'},
         {id: 'standard_play_50_rate', label: '50%播放率(标准推广)'},
       ],
       basicMetricOptions,
