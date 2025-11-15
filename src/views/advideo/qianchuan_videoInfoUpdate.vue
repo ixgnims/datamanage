@@ -16,13 +16,105 @@
       <el-button round size="small" @click="updateUniData" :loading="updateUniLoading">更新全域投流视频</el-button>
       <el-button round size="small" icon="el-icon-s-operation" @click="openFilter">更多筛选</el-button>
       <el-dialog
-          width="80%"
+          width="60%"
           :visible.sync="filterVisible">
         <span slot="title">更多筛选</span>
-
+        <div class="form-wrapper">
+          <el-form :model="materialQuery" label-width="80px" size="mini">
+            <el-form-item label="素材ID" class="form-line">
+              <el-col :span="20">
+                <el-input v-model="materialQuery.material_id" style="width:95%" :disabled="materialQuery.material_id_null"></el-input>
+              </el-col>
+              <el-col :span="4">
+                <el-checkbox v-model="materialQuery.material_id_null">为空</el-checkbox>
+              </el-col>
+            </el-form-item>
+            <el-form-item label="选题" class="form-line">
+              <el-col :span="20">
+                <el-input v-model="materialQuery.script_name" style="width:95%" :disabled="materialQuery.script_name_null"></el-input>
+              </el-col>
+              <el-col :span="4">
+                <el-checkbox v-model="materialQuery.script_name_null">为空</el-checkbox>
+              </el-col>
+            </el-form-item>
+            <el-form-item label="拍摄版本" class="form-line">
+              <el-col :span="20">
+                <el-input v-model="materialQuery.shoot_version" style="width:95%" :disabled="materialQuery.shoot_version_null"></el-input>
+              </el-col>
+              <el-col :span="4">
+                <el-checkbox v-model="materialQuery.shoot_version_null">为空</el-checkbox>
+              </el-col>
+            </el-form-item>
+            <el-form-item label="拍摄日期" class="form-line">
+              <el-col :span="20">
+                <el-date-picker
+                    v-model="materialQuery.shoot_daterange"
+                    :disabled="materialQuery.shoot_daterange_null"
+                    type="daterange"
+                    size="mini"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期">
+                </el-date-picker>
+              </el-col>
+              <el-col :span="4">
+                <el-checkbox v-model="materialQuery.shoot_daterange_null">为空</el-checkbox>
+              </el-col>
+            </el-form-item>
+            <el-form-item label="剪辑版本" class="form-line">
+              <el-col :span="20">
+                <el-input v-model="materialQuery.edit_version" style="width:95%" :disabled="materialQuery.edit_version_null"></el-input>
+              </el-col>
+              <el-col :span="4">
+                <el-checkbox v-model="materialQuery.edit_version_null">为空</el-checkbox>
+              </el-col>
+            </el-form-item>
+            <el-form-item label="剪辑日期" class="form-line">
+              <el-col :span="20">
+                <el-date-picker
+                    v-model="materialQuery.edit_daterange"
+                    :disabled="materialQuery.edit_daterange_null"
+                    type="daterange"
+                    size="mini"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期">
+                </el-date-picker>
+              </el-col>
+              <el-col :span="4">
+                <el-checkbox v-model="materialQuery.edit_daterange_null">为空</el-checkbox>
+              </el-col>
+            </el-form-item>
+            <el-form-item label="剪辑人" class="form-line">
+              <el-col :span="20">
+                <el-input v-model="materialQuery.editor" style="width:95%" :disabled="materialQuery.editor_null"></el-input>
+              </el-col>
+              <el-col :span="4">
+                <el-checkbox v-model="materialQuery.editor_null">为空</el-checkbox>
+              </el-col>
+            </el-form-item>
+            <el-form-item label="文件名" class="form-line">
+              <el-col :span="20">
+                <el-input v-model="materialQuery.file_title" style="width:95%" :disabled="materialQuery.file_title_null"></el-input>
+              </el-col>
+              <el-col :span="4">
+                <el-checkbox v-model="materialQuery.file_title_null">为空</el-checkbox>
+              </el-col>
+            </el-form-item>
+            <el-form-item label="年份" class="form-line">
+              <el-col :span="20">
+                <el-input v-model="materialQuery.year" style="width:95%" :disabled="materialQuery.year_null"></el-input>
+              </el-col>
+              <el-col :span="4">
+                <el-checkbox v-model="materialQuery.year_null">为空</el-checkbox>
+              </el-col>
+            </el-form-item>
+          </el-form>
+        </div>
         <span slot="footer" class="dialog-footer">
               <el-button @click="filterVisible = false">取 消</el-button>
-              <el-button type="primary" @click="sendMaterialQuery">确 定</el-button>
+              <el-button @click="clearMaterialQuery">重 置</el-button>
+              <el-button type="primary" @click="sendMaterialQuery" :loading="fetchMaterialLoading">确 定</el-button>
         </span>
       </el-dialog>
     </el-row>
@@ -125,7 +217,28 @@ export default {
         {type: "script_name", label: "选题"},
         {type: "shoot_version", label: "拍摄版本"},
         {type: "edit_version", label: "剪辑版本"}
-      ]
+      ],
+      materialQuery: {
+        material_id: "",
+        material_id_null: false,
+        script_name: "",
+        script_name_null: false,
+        shoot_version: "",
+        shoot_version_null: false,
+        shoot_daterange: "",
+        shoot_daterange_null: false,
+        edit_version: "",
+        edit_version_null: false,
+        edit_daterange: "",
+        edit_daterange_null: false,
+        editor: "",
+        editor_null: false,
+        file_title: "",
+        file_title_null: false,
+        year: "",
+        year_null: false,
+      },
+      fetchMaterialLoading: false
     }
   },
   methods: {
@@ -210,6 +323,95 @@ export default {
             }
           })
     },
+    clearMaterialQuery() {
+      this.materialQuery = {
+        material_id: "",
+        material_id_null: false,
+        script_name: "",
+        script_name_null: false,
+        shoot_version: "",
+        shoot_version_null: false,
+        shoot_daterange: "",
+        shoot_daterange_null: false,
+        edit_version: "",
+        edit_version_null: false,
+        edit_daterange: "",
+        edit_daterange_null: false,
+        editor: "",
+        editor_null: false,
+        file_title: "",
+        file_title_null: false,
+        year: "",
+        year_null: false,
+      }
+    },
+    sendMaterialQuery() {
+      const params = {}
+      if (this.materialQuery.material_id.length > 0 && this.materialQuery.material_id_null === false) {
+        params.material_id = this.materialQuery.material_id
+      } else if (this.materialQuery.material_id_null === true) {
+        params.material_id_null = true
+      }
+      if (this.materialQuery.script_name.length > 0 && this.materialQuery.script_name_null === false) {
+        params.script_name = this.materialQuery.script_name
+      } else if (this.materialQuery.script_name_null === true) {
+        params.script_name_null = true
+      }
+      if (this.materialQuery.shoot_version.length > 0 && this.materialQuery.shoot_version_null === false) {
+        params.shoot_version = this.materialQuery.shoot_version
+      } else if (this.materialQuery.shoot_version_null === true) {
+        params.shoot_version_null = true
+      }
+      if (this.materialQuery.shoot_daterange.length > 0 && this.materialQuery.shoot_daterange_null === false) {
+        params.shoot_daterange = [DateString(this.materialQuery.shoot_daterange[0]), DateString(this.materialQuery.shoot_daterange[1])]
+      } else if (this.materialQuery.shoot_daterange_null === true) {
+        params.shoot_daterange_null = true
+      }
+      if (this.materialQuery.edit_version.length > 0 && this.materialQuery.edit_version_null === false) {
+        params.edit_version = this.materialQuery.edit_version
+      } else if (this.edit_version_null === true) {
+        params.edit_version_null = true
+      }
+      if (this.materialQuery.edit_daterange.length > 0 && this.materialQuery.edit_daterange_null === false) {
+        params.edit_daterange = [DateString(this.materialQuery.edit_daterange[0]), DateString(this.materialQuery.edit_daterange[1])]
+      } else if (this.materialQuery.edit_daterange_null === true) {
+        params.edit_daterange_null = true
+      }
+      if (this.materialQuery.editor.length > 0 && this.materialQuery.editor_null === false) {
+        params.editor = this.materialQuery.editor
+      } else if (this.materialQuery.editor_null === true) {
+        params.editor_null = true
+      }
+      if (this.materialQuery.file_title.length > 0 && this.materialQuery.file_title_null === false) {
+        params.file_title = this.materialQuery.file_title_null
+      } else if (this.file_title_null === true) {
+        params.file_title_null = true
+      }
+      if (this.materialQuery.year.length > 0 && this.materialQuery.year_null === false) {
+        params.year = this.materialQuery.year
+      } else if (this.materialQuery.year_null === true) {
+        params.year_null = true
+      }
+      console.log(params)
+      this.fetchMaterialLoading = true
+      axios.post(`http://127.0.0.1:8000/material/script/aliu99/query/material/show/post`, params)
+          .then(response => {
+            if (response.data.code === 1) {
+              this.newMaterial = response.data['material_list']
+              this.newMaterial.forEach(item => {
+                //this.fillPrep(item)
+                this.extractEditDate(item)
+                this.extractShootDate(item)
+                this.extractEditorCode(item)
+                this.extractEditor(item)
+              })
+              this.filterVisible = false
+            }
+          })
+          .finally(() => {
+            this.fetchMaterialLoading = false
+          })
+    },
     // script_name和shoot_version的预填写
     fillPrep(item) {
       if (item['script_name'].length === 0) {
@@ -251,6 +453,8 @@ export default {
         "JJ": "李嘉靖",
         "KY": "胡可屹",
         "ZH": "吴仔豪",
+        "JY": "赵金岩",
+        "NA": "未知"
       }
       if (item.editor_code.length > 0) {
         item.editor = editor_map[item.editor_code] || ''

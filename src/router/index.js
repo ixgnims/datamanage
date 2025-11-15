@@ -227,6 +227,12 @@ const routes = [
     component: () => import('../views/advideo/qianchuan_videoInfoUpdate.vue'),
     meta: { title: '视频管理'}
   },
+  {
+    path: '/heshu_admin/dashboard/dy_aweme',
+    name: 'dy_aweme_update',
+    component: () => import('../views/adminDashboard/dy_aweme_management/dy_aweme_update.vue'),
+    meta: { title: '抖音账号管理'}
+  },
   // 管理员总看板
   {
     path: '/heshu_admin/dashboard',
