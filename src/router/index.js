@@ -253,6 +253,12 @@ const routes = [
         meta: { title: '千川视频看板'}
       },
       {
+        path: '/AdVideo/qianchuan_audit',
+        name: 'qianchuan_audit',
+        component: () => import('../views/advideo/qianchuan_audit/qianchuan_audit.vue'),
+        meta: { title: '千川视频审核'}
+      },
+      {
         path: '/AdVideo/qianchuan_comment',
         name: 'qianchuan_comment',
         component: () => import('../views/advideo/qianchuan_comment/qianchuan_comment.vue'),

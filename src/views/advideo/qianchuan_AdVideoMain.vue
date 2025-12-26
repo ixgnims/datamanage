@@ -12,6 +12,9 @@
           <el-menu-item index="/AdVideo/qianchuan_video">
             <span slot="title">视频看板</span>
           </el-menu-item>
+          <el-menu-item index="/AdVideo/qianchuan_audit">
+            <span slot="title">视频审核</span>
+          </el-menu-item>
           <el-menu-item index="/AdVideo/qianchuan_comment">
             <span slot="title">评论管理</span>
           </el-menu-item>

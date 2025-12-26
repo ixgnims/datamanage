@@ -1,5 +1,6 @@
 <template>
-  <div ref="commentGridWrapper">
+  <!--验证成功显示内容-->
+  <div v-if="accessGranted" class="comment-page" ref="commentGridWrapper">
     <el-row>
       <el-card>
         <!-- 第一行 -->
@@ -26,7 +27,7 @@
               <el-select v-model="filters.advertiser_ids"
                          :loading="loadingAdvertisers"
                          @visible-change="getAdvertiserOptions"
-                         placeholder="99XP1-合数教育"
+                         placeholder="99WT1-合数教育"
                          size="mini">
                 <el-option v-for="item in advertiserOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
@@ -140,6 +141,7 @@
         <el-row style="margin-bottom:10px" class="content-header">
           <el-button size="small" type="primary" plain round @click="openReplyCommentPanelBatch">批量回复</el-button>
           <el-button size="small" type="info" plain round @click="openHideCommentPanelBatch">批量隐藏</el-button>
+          <el-button size="small" plain round @click="exportCommentList">导出</el-button>
           <el-checkbox v-model="badWordFilter" style="margin-left:15px">
             <el-button size="small" type="text">常见负评筛选</el-button>
           </el-checkbox>
@@ -262,12 +264,44 @@
       </el-card>
     </el-row>
   </div>
+  <div v-else class="password-overlay">
+    <div class="password-card">
+      <div class="password-title">请输入访问密码</div>
+      <el-row :gutter="10" class="password-row">
+        <el-col :span="14">
+          <el-input
+              v-model="password"
+              size="mini"
+              type="password"
+              show-password
+              placeholder="请输入密码"
+              @keyup.enter="verify"
+          />
+        </el-col>
+        <el-col :span="10">
+          <el-button
+              type="primary"
+              size="mini"
+              style="width:100%"
+              @click="verify"
+          >
+            确认
+          </el-button>
+        </el-col>
+      </el-row>
+
+      <div v-if="error" class="password-error">{{ error }}</div>
+    </div>
+  </div>
 </template>
 
 <script>
 import {DateString, DateTimeString} from "@/functions/time_function";
 import {confirmWithLoading} from "@/functions/dialog"
 import axios from "@/api/axios";
+
+const STORAGE_KEY = 'comment_page_auth'
+const PAGE_KEY = 'comment_report_page'
 
 export default {
   name: "qianchuan_comment",
@@ -311,6 +345,12 @@ export default {
       data: []
     }
     return {
+      // 密码验证
+      accessGranted: false,
+      password: '',
+      error: '',
+      pwdDialogVisible: true,
+      // 评论管理
       commentDateRange: [],
       filters: {
         content: '',
@@ -400,6 +440,37 @@ export default {
     }
   },
   methods: {
+    async verify() {
+      const res = await axios.post('http://47.107.244.209:8967/material/comment/admin/verify', {
+        page_key: PAGE_KEY,
+        password: this.password
+      })
+
+      if (res.data.success) {
+        this.accessGranted = true
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          verified: true,
+          password_version: res.data.password_version
+        }))
+      } else {
+        this.error = res.data.msg
+      }
+    },
+    async verifyVersion(version) {
+      const res = await axios.post('http://127.0.0.1:8000/material/comment/admin/verify', {
+        page_key: PAGE_KEY,
+        password_version: version
+      })
+
+      if (res.data.success) {
+        this.accessGranted = true
+      } else {
+        // 密码已更新
+        localStorage.removeItem(STORAGE_KEY)
+        this.accessGranted = false
+        this.error = res.data.msg
+      }
+    },
     getCommonDate() {
       const today = new Date();
       const todayStr = DateString(today)
@@ -490,7 +561,7 @@ export default {
       }
       // 动态添加filters中的字段
       if (this.filters['advertiser_ids'].length === 0) {
-        params['advertiser_ids'] = "1807974073493577"
+        params['advertiser_ids'] = "1846658357848392"
       }
       for (const [key, value] of Object.entries(this.filters)) {
         if (
@@ -520,6 +591,51 @@ export default {
             this.commentGridOptions.loading = false
           })
       this.updateTime = DateTimeString(new Date())
+    },
+    exportCommentList() {
+      this.$message.info('正在跳转生成文件，请稍候…')
+      let start_date = this.getCommonDate()['today']
+      let end_date = this.getCommonDate()['today']
+      this.commentCreateStart = start_date
+      this.commentCreateEnd = end_date
+      if (this.commentDateRange.length > 0) {
+        start_date = DateString(new Date(this.commentDateRange[0]))
+        end_date = DateString(new Date(this.commentDateRange[1]))
+      }
+      const params = {
+        start_time: start_date,
+        end_time: end_date,
+        need_info: "true",
+        order_field: this.commentSortField,
+        order_type: this.commentSortOrder
+      }
+      // 动态添加filters中的字段
+      if (this.filters['advertiser_ids'].length === 0) {
+        params['advertiser_ids'] = "1846658357848392"
+      }
+      for (const [key, value] of Object.entries(this.filters)) {
+        if (
+            Array.isArray(value) ? value.length > 0 : (value !== '' && value !== null && value !== 'ALL')
+        ) {
+          params[key] = Array.isArray(value) ? value.join(',') : value
+        }
+      }
+      // 去掉空值
+      Object.keys(params).forEach(key => {
+        if (
+            params[key] === undefined ||
+            params[key] === null ||
+            params[key] === '' ||
+            (Array.isArray(params[key]) && !params[key].length)
+        ) {
+          delete params[key]
+        }
+      })
+      const query = Object.keys(params)
+          .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
+          .join('&')
+      const url = `http://dashboard1.xiyao888.cn/material/comment/dy/export/?${query}`
+      window.open(url)
     },
     setCommentGrid(newList) {
       this.commentGridOptions.data = newList || []
@@ -869,6 +985,15 @@ export default {
     }
   },
   mounted() {
+    const cache = localStorage.getItem(STORAGE_KEY)
+    if (cache) {
+      const { password_version } = JSON.parse(cache)
+
+      // 向后端确认：版本还有效吗？
+      this.verifyVersion(password_version)
+    } else {
+      this.accessGranted = false
+    }
     this.getVideoComment()
   },
   watch: {
@@ -904,6 +1029,49 @@ export default {
 </script>
 
 <style>
+.comment-page {
+  position: relative;
+  min-height: 100%
+}
+
+.password-overlay {
+  position: absolute;
+  inset: 0;
+  background: #f5f7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.password-card {
+  width: 320px;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.password-title {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: #303133;
+  margin-bottom: 16px;
+}
+
+.password-row {
+  margin-bottom: 10px;
+}
+
+.password-error {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #f56c6c;
+  text-align: center;
+}
+
+
 .select-with-label {
   display: flex;
   align-items: center;

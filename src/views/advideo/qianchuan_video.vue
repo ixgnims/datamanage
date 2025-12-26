@@ -136,6 +136,18 @@ export default {
       chartSeries: {}
     }
   },
+  computed: {
+    isMultiDates() {
+      const dates = this.selectDate
+      // 必须是数组，且至少有两个值
+      if (!Array.isArray(dates) || dates.length < 2) {
+        return false
+      }
+      const [start_date, end_date] = dates
+      // 两个日期都存在，且不相等
+      return Boolean(start_date && end_date && DateString(start_date) !== DateString(end_date))
+    }
+  },
   methods: {
     dimensionsChecked(data) {
       this.dimensionsList = data;
@@ -181,7 +193,7 @@ export default {
       start_date = DateString(start_date)
       end_date = DateString(end_date)
       // 获取数据
-      axios.get(`http://47.107.244.209:8967/material/aliu99/dy/kpi/trend/get/?start_date=${start_date}&end_date=${end_date}&dimension=${this.chartDimension}&record_limit=${this.chartRecordLimit}&search_type=${this.searchType}&query_item=${this.queryItem}`)
+      axios.get(`http://47.107.244.209:8967/material/aliu99/dy/kpi/trend/get/?start_date=${start_date}&end_date=${end_date}&dimension=${this.chartDimension}&record_limit=${this.chartRecordLimit}&search_type=${this.searchType}&query_item=${this.queryItem}&version=1`)
           .then(response => {
             if (response.data.code === 1) {
               // 向子组件传参 qc_videoDashboard
@@ -205,7 +217,7 @@ export default {
       start_date = DateString(start_date)
       end_date = DateString(end_date)
       // 获取数据
-      axios.get(`http://47.107.244.209:8967/material/aliu99/dy/combine/pivot/get/?start_date=${start_date}&end_date=${end_date}&dimensions=${this.dimensionsList}&search_type=${this.searchType}&query_item=${this.queryItem}`)
+      axios.get(`http://47.107.244.209:8967/material/aliu99/dy/combine/pivot/get/?start_date=${start_date}&end_date=${end_date}&dimensions=${this.dimensionsList}&search_type=${this.searchType}&query_item=${this.queryItem}&version=1`)
           .then(response => {
             if (response.data.pivot_data.length > 0) {
               // 向子组件传参 qc_videoTable
@@ -246,11 +258,11 @@ export default {
   },
   mounted() {
     this.sendQueryAtChange()
-    if (this.selectDate.length === 0 || this.selectDate[1]===(new Date())) {
-      setInterval(() => {
-        this.sendQueryAtChange();
-      }, 60000);
-    }
+    setInterval(() => {
+      if (this.isMultiDates === false) {
+        this.sendQueryAtChange()
+      }
+    }, 60000);
   },
   watch: {
     dimensionsList: function(newValue) {

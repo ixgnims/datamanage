@@ -33,3 +33,22 @@ new Vue({
   store,
   render: h => h(App) //render渲染
 }).$mount('#app')
+
+
+// 视频懒加载
+Vue.directive('lazy-video', {
+  inserted(el, binding) {
+    const loadFn = binding.value.load;
+
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        // 只触发一次
+        observer.unobserve(el);
+        // 调用加载逻辑
+        loadFn && loadFn();
+      }
+    });
+
+    observer.observe(el);
+  }
+});

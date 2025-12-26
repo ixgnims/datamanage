@@ -109,6 +109,22 @@
                 <el-checkbox v-model="materialQuery.year_null">为空</el-checkbox>
               </el-col>
             </el-form-item>
+            <el-form-item label="产品" class="form-line">
+              <el-col :span="20">
+                <el-input v-model="materialQuery.product" style="width:95%" :disabled="materialQuery.product_null"></el-input>
+              </el-col>
+              <el-col :span="4">
+                <el-checkbox v-model="materialQuery.product_null">为空</el-checkbox>
+              </el-col>
+            </el-form-item>
+            <el-form-item label="IP" class="form-line">
+              <el-col :span="20">
+                <el-input v-model="materialQuery.ip" style="width:95%" :disabled="materialQuery.ip_null"></el-input>
+              </el-col>
+              <el-col :span="4">
+                <el-checkbox v-model="materialQuery.ip_null">为空</el-checkbox>
+              </el-col>
+            </el-form-item>
           </el-form>
         </div>
         <span slot="footer" class="dialog-footer">
@@ -123,8 +139,21 @@
         <el-card v-for="(item) in newMaterial"
                  :key="item.material_id"
                  style="margin-bottom:10px">
-          <div class="card-content">
+          <div class="card-content" v-lazy-video="{ load: () => loadVideo(item) }">
             <!--左侧：视频播放器 / 视频封面-->
+            <div v-if="item.video_url" class="video-wrapper">
+              <video :src="item.video_url"
+                     controls
+                     style="width:100%;border-radius:6px"></video>
+
+            </div>
+            <!--若未进入视口 → 用封面占位-->
+            <div v-else>
+              <el-image :src="item.cover_url"
+                        style="width:180px;height:320px"
+                        fit="cover"></el-image>
+            </div>
+            <!--
             <div v-if="item.video_url" class="video-wrapper">
               <video :src="item.video_url"
                      controls
@@ -139,10 +168,12 @@
                         fit="cover">
               </el-image>
             </div>
+            -->
             <!--右侧：表单-->
             <div class="form-wrapper">
               <el-form :model="item" :ref="item.material_id" label-width="80px" size="mini">
                 <el-form-item label="素材ID" class="form-line"> {{item.material_id}} </el-form-item>
+                <el-form-item label="视频ID" class="form-line"> {{item.video_id}} </el-form-item>
                 <el-form-item label="视频标题" class="form-line">
                   <el-input v-model="item.file_title" style="width:100%"></el-input>
                 </el-form-item>
@@ -169,6 +200,12 @@
                 </el-form-item>
                 <el-form-item label="剪辑日期" class="form-line">
                   <el-input v-model="item.edit_date"></el-input>
+                </el-form-item>
+                <el-form-item label="IP" class="form-line">
+                  <el-input v-model="item.ip"></el-input>
+                </el-form-item>
+                <el-form-item label="产品" class="form-line">
+                  <el-input v-model="item.product"></el-input>
                 </el-form-item>
                 <el-form-item label="创建日期" class="form-line"> {{item.create_time}}</el-form-item>
                 <el-form-item class="form-line">
@@ -237,6 +274,10 @@ export default {
         file_title_null: false,
         year: "",
         year_null: false,
+        product: "",
+        product_null: false,
+        ip: "",
+        ip_null: false,
       },
       fetchMaterialLoading: false
     }
@@ -302,6 +343,52 @@ export default {
         this.updateUniLoading = false
       }
     },
+    initObserver() {
+      const options = {
+        root: null,
+        threshold: 0.2
+      };
+      this.observer = new IntersectionObserver(this.handleIntersect, options);
+      // 监听每个卡片
+      this.$refs.cards?.forEach(card => {
+        if (card) this.observer.observe(card);
+      });
+    },
+    // 触发懒加载逻辑
+    handleIntersect(entries) {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const itemId = entry.target.dataset.id;
+          const item = this.newMaterial.find(i => i.material_id === itemId);
+          if (item && !item.isLoaded) {
+            item.isVisible = true;
+            this.loadVideo(item);
+            item.isLoaded = true;
+          }
+        }
+      });
+    },
+    // 按规则加载视频
+    async loadVideo(item) {
+      if (item.isLoaded) return;
+      item.isLoaded = true;
+      // 情况一：已有 video_url
+      if (item.video_url) return;
+      // 情况二：去接口拿视频地址
+      try {
+        const res = await fetch(`http://47.107.244.209:8967/material/dy/temp_url/get/?material_id=${item.material_id}`);
+        const url_dict = await res.json();
+        if (url_dict.temp_url) {
+          item.video_url = url_dict.temp_url;
+          item.cover_url = url_dict.poster_url || item.cover_url;
+          return;
+        }
+      } catch (e) {
+        console.warn("视频接口异常:", e);
+      }
+      // 情况三：依旧没有 → 使用封面
+      item.video_url = null;
+    },
     fetchNewVideo() {
       let start_date = yesterdayDateString()
       let end_date = DateString(new Date())
@@ -319,6 +406,8 @@ export default {
                 this.extractShootDate(item)
                 this.extractEditorCode(item)
                 this.extractEditor(item)
+                item['isVisible'] = false
+                item['isLoaded'] = false
               })
             }
           })
@@ -404,6 +493,8 @@ export default {
                 this.extractShootDate(item)
                 this.extractEditorCode(item)
                 this.extractEditor(item)
+                item['isVisible'] = false
+                item['isLoaded'] = false
               })
               this.filterVisible = false
             }
@@ -411,6 +502,7 @@ export default {
           .finally(() => {
             this.fetchMaterialLoading = false
           })
+      console.log(this.newMaterial)
     },
     // script_name和shoot_version的预填写
     fillPrep(item) {
@@ -418,25 +510,40 @@ export default {
         item['script_name'] = item['edit_version'].split('+')[0]
       }
       item['shoot_version'] = item['edit_version'].split('+')[0] + '+' +item['edit_version'].split('+')[1]
+      if (!item['file_title'].includes('大场')) {
+        item['product'] = '99教育规划精华课'
+      }
+      if (item['file_title'].includes('胡阳')) {
+        item['ip'] = '胡阳'
+      } else if (item['file_title'].includes('可乐')) {
+        item['ip'] = '可乐'
+      } else {
+        item['ip'] = '阿留'
+      }
     },
     // 根据后四位字符串提取拍摄日期和剪辑日期
     extractShootDate(item) {
-      let date_str = item.shoot_version.slice(-4)
-      item.shoot_date = extractDate(item.year, date_str)
-
+      if (item.shoot_version.length > 0) {
+        let date_str = item.shoot_version.slice(-4)
+        item.shoot_date = extractDate(item.year, date_str)
+      }
     },
     extractEditDate(item) {
-      let lastPlusIndex = item.edit_version.lastIndexOf("+")
-      let date_str = item.edit_version.substring(0, lastPlusIndex).slice(-4)
-      item.edit_date = extractDate(item.year, date_str)
+      if (item.edit_version.length > 0) {
+        let lastPlusIndex = item.edit_version.lastIndexOf("+")
+        let date_str = item.edit_version.substring(0, lastPlusIndex).slice(-4)
+        item.edit_date = extractDate(item.year, date_str)
+      }
     },
     // 提取剪辑师和剪辑师代码
     extractEditorCode(item) {
-      let code = item.edit_version.includes('+') ? item.edit_version.split('+').pop() : ''
-      if (code.length > 0) {
-        code = code.replace(/\d+/g, '')
+      if (item.edit_version.length > 0) {
+        let code = item.edit_version.includes('+') ? item.edit_version.split('+').pop() : ''
+        if (code.length > 0) {
+          code = code.replace(/\d+/g, '')
+        }
+        item.editor_code = code
       }
-      item.editor_code = code
     },
     extractEditor(item) {
       const editor_map = {
@@ -454,6 +561,10 @@ export default {
         "KY": "胡可屹",
         "ZH": "吴仔豪",
         "JY": "赵金岩",
+        "ZJ": "张佳",
+        "LSY": "娄诗雨",
+        "MX": "史明曦",
+        "XM": "小米",
         "NA": "未知"
       }
       if (item.editor_code.length > 0) {
@@ -543,6 +654,9 @@ export default {
     }
   },
   mounted() {
+    this.$nextTick(() => {
+      this.initObserver();
+    });
     this.fetchNewVideo()
   }
 }
