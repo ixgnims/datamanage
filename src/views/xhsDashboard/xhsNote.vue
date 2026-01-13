@@ -145,6 +145,8 @@ export default {
         {field: "deal_order_gmv_7d", title: "GMV", width: 100, showHeaderOverflow: true, formatter: formatFloat, sortable: true},
         {field: "deal_order_num_7d", title: "单量", width: 100, showHeaderOverflow: true, formatter: formatInteger, sortable: true},
         {field: "deal_order_roi_7d", title: "ROI", width: 100, showHeaderOverflow: true, formatter: formatFloat, sortable: true},
+        {field: "impression", title: "展示数", width: 100, showHeaderOverflow: true, formatter: formatInteger, sortable: true},
+        {field: "click", title: "点击数", width: 100, showHeaderOverflow: true, formatter: formatInteger, sortable: true},
         {field: "ctr", title: "点击率", width: 100, showHeaderOverflow: true, formatter: formatRate, sortable: true},
         {field: "cvr", title: "转化率", width: 100, showHeaderOverflow: true, formatter: formatRate, sortable: true},
         {field: "cpm", title: "CPM", width: 100, showHeaderOverflow: true, formatter: formatFloat, sortable: true},

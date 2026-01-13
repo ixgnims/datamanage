@@ -7,6 +7,7 @@ const routes = [
   {
     path: '/',
     name: 'hello',
+    component: () => import('../views/auth/callBack.vue'),
   },
   {
     path: '/login', //登录页
@@ -180,6 +181,12 @@ const routes = [
         component: () => import('../views/admin/manageMarketing/manageMarketing.vue'),
       }
     ]
+  },
+    //回调地址
+  {
+    path: '/ad_api/qq/callback',
+    name: 'qq_ad_callback',
+    component: () => import('../views/auth/TencentAd.vue'),
   },
     //测试用
   {

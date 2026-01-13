@@ -151,7 +151,7 @@ export default {
         {label: "CPM", metric: "total_cpm", suffix: ""},
         {label: "展示点击率", metric: "total_click_rate", suffix: "%"},
         {label: "点击转化率", metric: "total_click_convert_rate", suffix: "%"},
-        {label: "直播间进入率(标准)", metric: "standard_live_enter_rate", suffix: "%"},
+        {label: "转化成本", metric: "total_convert_cost", suffix: ""},
         {label: "举报率(标准)", metric: "standard_report_rate", suffix: "‱"},
         {label: "不感兴趣率(标准)", metric: "standard_dislike_rate", suffix: "‰"},
       ]

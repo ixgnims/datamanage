@@ -160,7 +160,6 @@ export default {
     },
     // 匹配输入建议，远程搜索
     querySearch(queryString, cb) {
-      console.log(queryString)
       if (this.searchTimeOut) {
         clearTimeout(this.searchTimeOut);
       }
